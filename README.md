@@ -1,15 +1,15 @@
 <div align="center">
-  <a href="https://www.npmjs.com/package/@evilkiwi/form" target="_blank">
-    <img src="https://img.shields.io/npm/v/@evilkiwi/form?style=flat-square" alt="NPM" />
+  <a href="https://www.npmjs.com/package/@devlsh/form" target="_blank">
+    <img src="https://img.shields.io/npm/v/@devlsh/form?style=flat-square" alt="NPM" />
   </a>
   <a href="https://discord.gg/3S6AKZ2GR9" target="_blank">
     <img src="https://img.shields.io/discord/1000565079789535324?color=7289DA&label=discord&logo=discord&logoColor=FFFFFF&style=flat-square" alt="Discord" />
   </a>
-  <img src="https://img.shields.io/npm/l/@evilkiwi/form?style=flat-square" alt="GPL-3.0-only" />
+  <img src="https://img.shields.io/npm/l/@devlsh/form?style=flat-square" alt="GPL-3.0-only" />
   <h3>Form Handling and Validation Hook for Vue 3</h3>
 </div>
 
-`@evilkiwi/form` provides Vue 3 Hooks for consuming, validating and managing Forms.
+`@devlsh/form` provides Vue 3 Hooks for consuming, validating and managing Forms.
 
 Inspired by [vue-hooks-form](https://github.com/beizhedenglong/vue-hooks-form).
 
@@ -20,19 +20,19 @@ Inspired by [vue-hooks-form](https://github.com/beizhedenglong/vue-hooks-form).
 
 ## Installation
 
-This package is available via NPM:
+Requires Vue `^3.3.8` in the consuming application. `async-validator` is installed as a runtime dependency:
 
 ```bash
-yarn add @evilkiwi/form
+yarn add @devlsh/form
 
 # or
 
-npm install @evilkiwi/form
+npm install @devlsh/form
 ```
 
 ## Usage
 
-A simple example app is provided in the [examples/simple](https://github.com/evilkiwi/form/tree/master/examples/simple) folder.
+A simple example app is provided in the [examples/simple](https://github.com/devlsh/form/tree/master/examples/simple) folder.
 
 ```vue
 <template>
@@ -64,7 +64,7 @@ A simple example app is provided in the [examples/simple](https://github.com/evi
 </template>
 
 <script lang="ts" setup>
-import { useForm } from '@evilkiwi/form';
+import { useForm } from '@devlsh/form';
 
 const { useField, handle, loading } = useForm<{
   email: string;
@@ -133,3 +133,9 @@ all options are forwarded as a validation field.
 ## To-do
 
 - Add a test suite
+
+## Package verification
+
+Run `pnpm dlx --package=pnpm@8.15.9 pnpm test:package`. Open the local URL printed by the script in a real browser. The script installs a
+fresh local tarball in a temporary consumer, checks native CJS/ESM imports and declarations, then runs the mounted Vue form protocol. It
+exits after the browser reports its results. Any failed contract exits nonzero; results remain in the printed temporary directory.

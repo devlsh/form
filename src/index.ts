@@ -126,15 +126,17 @@ export function useForm<Fields extends DefaultFields>(options: Options<Fields>) 
 
     loading.value = true;
 
-    clearErrors();
+    try {
+      clearErrors();
 
-    const valid = await validate();
+      const valid = await validate();
 
-    if (valid) {
-      await run(fields.value as FieldValues<Fields>);
+      if (valid) {
+        await run(fields.value as FieldValues<Fields>);
+      }
+    } finally {
+      loading.value = false;
     }
-
-    loading.value = false;
   };
 
   // Clears all Errors.
@@ -154,7 +156,7 @@ export function useForm<Fields extends DefaultFields>(options: Options<Fields>) 
 
     for (let i = 0; i < total; i++) {
       const key = keys[i];
-      fields.value[key] = typeof options?.defaults[key] !== 'undefined' ? options.defaults[key] : '';
+      fields.value[key] = typeof options?.defaults?.[key] !== 'undefined' ? options.defaults[key] : '';
       errors.value[key] = [];
     }
 

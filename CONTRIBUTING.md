@@ -1,7 +1,6 @@
-# Contributing to Evil Kiwi Open Source
+# Contributing to Form
 
-At Evil Kiwi we aim to give back to the Developer communities we engage in as often as possible - as such,
-we maintain various Open Source libraries and software, both related to the Evil Kiwi Ecosystem and otherwise.
+This project is maintained by devlsh. Original authorship and license attribution remain with Evil Kiwi Limited.
 
 We're always welcome to feedback, PRs and constructive criticism of our software.
 
@@ -21,7 +20,7 @@ our `#open-source` channel.
 
 ## I've found an issue with the library/software
 
-In this case, feel free to open a [Bug Report](https://github.com/evilkiwi/form/issues/new?assignees=&labels=&template=bug_report.md&title=)
+In this case, feel free to open a [Bug Report](https://github.com/devlsh/form/issues/new?assignees=&labels=&template=bug_report.md&title=)
 and fully explain the Issue to us. If you don't explain in enough detail, it makes it much harder to diagnose.
 
 Ideally we'd love a minimal set-up that reproduces the issue.
@@ -37,6 +36,4 @@ Great! We'd love to see it!
 
 ## Final notes
 
-From the Evil Kiwi Team, thank you for considering contributing to our Open Source software - we do our best
-to work on and maintain anything we feel would benefit the software, as well as requests from the community,
-but our priority is always based on the Evil Kiwi Ecosystem itself. Contributions are a great way to give back!
+Thank you for considering a contribution to this project.
