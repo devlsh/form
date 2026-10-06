@@ -1,124 +1,133 @@
 import Validator, { type RuleItem, type ValidateError } from 'async-validator';
-import { computed, onBeforeUnmount, reactive, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, reactive, ref, watch, type Ref } from 'vue';
 
-import type { DefaultFields, Field, FieldOptions, FieldValues, Options } from './types';
+import { type DefaultFields, type Field, type FieldOptions, type FieldValues, type Options } from './types';
+import { blankIfUnset } from './utils';
 
 export function useForm<Fields extends DefaultFields>(options: Options<Fields>) {
-  // Assign some helper types on a per-instance basis.
   type Keys = keyof Fields;
-  type FieldStore = { [K in Keys]: Fields[K] };
-  type ErrorStore = { [K in Keys]: ValidateError[] };
 
-  // Store all current values and errors.
-  const fields = ref<Partial<FieldStore>>({});
-  const errors = ref<Partial<ErrorStore>>({});
+  type FieldStore = { [K in Keys]: Fields[K] | '' };
 
-  // Store all of the Field validators config.
-  const validators = ref<{ [K in Keys]?: RuleItem }>({});
+  // SAFETY: Vue's deep ref unwrapping cannot retain this generic indexed type.
+  const fields = ref<Partial<FieldStore>>({}) as Ref<Partial<FieldStore>>;
+  const errors = ref<Partial<Record<PropertyKey, ValidateError[]>>>({});
+
+  const validators = ref<Record<PropertyKey, RuleItem>>({});
   let validator = new Validator({});
 
-  // Some helper refernces.
   const loading = ref(false);
 
-  // Re-create the Validator when the config changes.
+  // The deep watcher includes nested reactive rules. Vue batches its updates.
   const watcher = watch(
     validators,
-    config => {
+    (config) => {
       validator = new Validator(config);
     },
     { deep: true },
   );
 
-  // Assign defaults.
-  if (options.defaults) {
-    const keys = Object.keys(options.defaults);
-    const total = keys.length;
+  Object.assign(fields.value, options.defaults);
 
-    for (let i = 0; i < total; i++) {
-      fields.value[keys[i]] = options.defaults[keys[i]];
-    }
-  }
+  const validate = async (): Promise<boolean> => {
+    const validationErrors: ValidateError[] = [];
 
-  // Validates all of the releveant fields.
-  const validate = async (): Promise<boolean> =>
-    new Promise(resolve => {
-      validator.validate(fields.value, undefined, (errs, fields) => {
+    try {
+      // Collect typed callback errors and consume the promise rejection.
+      await validator.validate(fields.value, (errs) => {
         if (errs) {
-          const total = errs.length;
-
-          for (let i = 0; i < total; i++) {
-            const key = errs[i].field;
-
-            if (key) {
-              errors.value[key].push(errs[i]);
-            }
-          }
-
-          resolve(false);
+          validationErrors.push(...errs);
         }
-
-        resolve(true);
       });
-    });
 
-  // Returns the references to a specific Field.
-  const useField = <K extends Keys>(name: K, fieldOptions: FieldOptions = {}) => {
-    if (!errors.value[name]) {
-      errors.value[name] = [];
+      return true;
+    } catch (error) {
+      if (validationErrors.length === 0) {
+        throw error instanceof Error ? error : new Error('Validation failed', { cause: error });
+      }
+
+      for (const failure of validationErrors) {
+        if (failure.field) {
+          // A nested path can differ from every declared top-level field key.
+          (errors.value[failure.field] ??= []).push(failure);
+        }
+      }
+
+      return false;
     }
+  };
 
-    // Append the Validator config.
+  const useField = <K extends Keys>(name: K, fieldOptions: FieldOptions = {}) => {
+    errors.value[name] ??= [];
+
     validators.value[name] = fieldOptions;
 
-    // Assign a value if it didn't have a default.
-    if (fields.value[name] === undefined) {
-      fields.value[name] = '';
-    }
+    fields.value[name] = blankIfUnset(fields.value[name]);
 
-    // Computed property for getting & setting the value of the field.
     const value = computed<Fields[K]>({
       get() {
-        return fields.value[name];
+        // SAFETY: Registration removes undefined, but can leave '' outside Fields[K].
+        return fields.value[name] as Fields[K];
       },
       set(val) {
         fields.value[name] = val;
       },
     });
 
-    // Computed property for fetching the current error(s).
     const fieldErrors = computed<ValidateError[]>(() => errors.value[name] ?? []);
-    const fieldError = computed<ValidateError | null>(() => {
-      return fieldErrors.value.length > 0 ? fieldErrors.value[0] : null;
-    });
 
-    // Add some manual juice for custom errors.
+    const fieldError = computed<ValidateError | null>(() => fieldErrors.value[0] ?? null);
+
     const setError = (text: string) => {
-      clearError();
-      errors.value[name].push({
-        field: name,
-        message: text,
-      });
+      errors.value[name] = [
+        {
+          field: String(name),
+          message: text,
+        },
+      ];
     };
+
     const clearError = () => {
       errors.value[name] = [];
     };
 
-    // Return a reactive object for reactivity, ofc.
-    return reactive<Field<Fields[K]>>({
+    return reactive({
+      /**
+       * Errors at this field's exact key.
+       */
       errors: fieldErrors,
+
+      /**
+       * First field error, or null when none exist.
+       */
       error: fieldError,
+
+      /**
+       * Whether the field has a stored error.
+       */
       hasError: computed(() => fieldError.value !== null),
+
+      /**
+       * Replaces the field's errors with one manual error.
+       *
+       * @param text - Error message to display.
+       */
       setError,
+
+      /**
+       * Clears errors at this field's exact key.
+       */
       clearError,
+
+      /**
+       * Shared field value; unset values become `''`.
+       */
       value,
-    });
+    } satisfies Field<Fields[K]>);
   };
 
-  // Handles form submission.
   const handle = (run: (values: FieldValues<Fields>) => Promise<void>) => async (e?: Event) => {
-    if (e) {
-      e.preventDefault();
-    }
+    e?.preventDefault();
 
     if (loading.value) {
       return;
@@ -132,6 +141,7 @@ export function useForm<Fields extends DefaultFields>(options: Options<Fields>) 
       const valid = await validate();
 
       if (valid) {
+        // SAFETY: Preserve the callback type despite a possibly incomplete store containing ''.
         await run(fields.value as FieldValues<Fields>);
       }
     } finally {
@@ -139,47 +149,72 @@ export function useForm<Fields extends DefaultFields>(options: Options<Fields>) 
     }
   };
 
-  // Clears all Errors.
   const clearErrors = () => {
-    const keys = Object.keys(errors.value);
-    const total = keys.length;
-
-    for (let i = 0; i < total; i++) {
-      errors.value[keys[i]] = [];
+    for (const key of Reflect.ownKeys(errors.value)) {
+      errors.value[key] = [];
     }
   };
 
-  // Resets the Form values to their defaults or blank values.
   const reset = () => {
-    const keys = Object.keys(fields.value);
-    const total = keys.length;
+    // SAFETY: Defaults and field registration supply the declared keys lost by reflection.
+    const keys = Reflect.ownKeys(fields.value) as Keys[];
 
-    for (let i = 0; i < total; i++) {
-      const key = keys[i];
-      fields.value[key] = typeof options?.defaults?.[key] !== 'undefined' ? options.defaults[key] : '';
+    for (const key of keys) {
+      const value = options.defaults?.[key];
+      fields.value[key] = blankIfUnset(value);
       errors.value[key] = [];
     }
 
     loading.value = false;
   };
 
-  // Handle clean-up.
   const destroy = () => {
-    if (watcher) {
-      watcher();
-    }
+    watcher();
   };
+
   onBeforeUnmount(() => destroy());
 
   return {
+    /**
+     * Registers a field with reactive value and error controls.
+     *
+     * @param name - Field key to register.
+     * @param fieldOptions - Validation rule; specify `type` for non-string values.
+     */
     useField,
+
+    /**
+     * Creates a submit handler that validates before running the callback.
+     *
+     * @param run - Callback receiving the live form values after successful validation.
+     */
     handle,
+
+    /**
+     * Restores stored fields to their defaults or `''` and clears their errors.
+     */
     reset,
+
+    /**
+     * Validates current values; call `clearErrors` first for a fresh error list.
+     */
     validate,
+
+    /**
+     * Clears all stored errors, including nested validation errors.
+     */
     clearErrors,
+
+    /**
+     * Tracks submission through `handle`, not direct validation.
+     */
     loading,
+
+    /**
+     * Stops watching rules; call manually when used outside component setup.
+     */
     destroy,
   };
 }
 
-export * from './types';
+export type * from './types';

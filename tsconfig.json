@@ -1,25 +1,13 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@tsconfig/node24/tsconfig.json",
   "compilerOptions": {
-    "strict": true,
-    "jsx": "preserve",
-    "importHelpers": true,
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "sourceMap": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "baseUrl": ".",
-    "outDir": "./build/",
-    "module": "es2020",
-    "moduleResolution": "node",
-    "target": "es2020",
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
-    "paths": {
-      "*": ["./src/types/*.d.ts"],
-      "@/*": ["./src/*"]
-    }
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "rootDir": ".",
+    "types": ["node", "vitest/globals", "vitest-browser-vue"]
   },
-  "include": ["./src/**/*"]
+  "include": ["src", "tests", "*.config.ts", "shim.d.ts"]
 }

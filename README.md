@@ -1,135 +1,102 @@
-<div align="center">
-  <a href="https://www.npmjs.com/package/@devlsh/form" target="_blank">
-    <img src="https://img.shields.io/npm/v/@devlsh/form?style=flat-square" alt="NPM" />
+<p align="center">
+  <h1 align="center">@devlsh/form</h1>
+  <p align="center">Lightweight, type-safe forms for Vue.</p>
+</p>
+
+<br />
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/@devlsh/form" rel="nofollow">
+    <img src="https://img.shields.io/npm/dm/%40devlsh%2Fform?style=flat-square" alt="NPM Downloads" />
   </a>
-  <a href="https://discord.gg/3S6AKZ2GR9" target="_blank">
-    <img src="https://img.shields.io/discord/1000565079789535324?color=7289DA&label=discord&logo=discord&logoColor=FFFFFF&style=flat-square" alt="Discord" />
+  <a href="https://github.com/devlsh/form/stargazers" rel="nofollow">
+    <img src="https://img.shields.io/github/stars/devlsh/form?style=flat-square" alt="GitHub Stars" />
   </a>
-  <img src="https://img.shields.io/npm/l/@devlsh/form?style=flat-square" alt="GPL-3.0-only" />
-  <h3>Form Handling and Validation Hook for Vue 3</h3>
-</div>
+  <a href="https://github.com/devlsh/form/actions/workflows/validate.yml" rel="nofollow">
+    <img src="https://img.shields.io/github/actions/workflow/status/devlsh/form/validate.yml?style=flat-square" alt="Build Status" />
+  </a>
+  <a href="https://github.com/devlsh/form/blob/main/LICENSE" rel="nofollow">
+    <img src="https://img.shields.io/github/license/devlsh/form?style=flat-square" alt="Software License" />
+  </a>
+</p>
 
-`@devlsh/form` provides Vue 3 Hooks for consuming, validating and managing Forms.
+<br />
 
-Inspired by [vue-hooks-form](https://github.com/beizhedenglong/vue-hooks-form).
+- [Interactive demo](https://form.devlsh.com).
+- Typed field names and values.
+- Reactive field values and validation errors.
+- Field validation with `async-validator` rules.
+- Async submit callbacks with a `loading` state.
+- Default values, form reset, and manual field errors.
 
-- Asynchronous validation via [async-validator](https://github.com/yiminghe/async-validator)
-- No forced HTML structure/format
-- Error handling
-- TypeScript
+<br />
 
 ## Installation
 
-Requires Vue `^3.3.8` in the consuming application. `async-validator` is installed as a runtime dependency:
-
 ```bash
-yarn add @devlsh/form
-
-# or
-
-npm install @devlsh/form
+$ npm install @devlsh/form
 ```
 
 ## Usage
 
-A simple example app is provided in the [examples/simple](https://github.com/devlsh/form/tree/master/examples/simple) folder.
+Validate an email field before submission.
 
 ```vue
 <template>
-  <form @submit.prevent="submit">
+  <form novalidate @submit="submit">
     <label for="email">Email Address</label>
     <input
-      type="email"
-      name="email"
       id="email"
-      placeholder="Email Address"
+      name="email"
+      type="email"
+      autocomplete="email"
+      required
       :disabled="loading"
-      @focus="email.clearError"
+      :aria-invalid="email.hasError"
+      :aria-describedby="email.hasError ? 'email-error' : undefined"
       v-model="email.value"
     />
-    <p class="err" v-if="email.error">{{ email.error.message }}</p>
-    <label for="email">Password</label>
-    <input
-      type="password"
-      name="password"
-      id="password"
-      placeholder="Password"
-      :disabled="loading"
-      @focus="password.clearError"
-      v-model="password.value"
-    />
-    <p class="err" v-if="password.error">{{ password.error.message }}</p>
-    <button type="submit" :disabled="loading">Login</button>
+
+    <p id="email-error" role="alert" v-if="email.hasError">{{ email.error?.message }}</p>
+
+    <button type="submit" :disabled="loading">Submit</button>
   </form>
 </template>
 
-<script lang="ts" setup>
-import { useForm } from '@devlsh/form';
+<script setup lang="ts">
+  import { useForm } from '@devlsh/form';
 
-const { useField, handle, loading } = useForm<{
-  email: string;
-  password: string;
-}>({
-  defaults: {
-    email: 'hello@example.com',
-  },
-});
+  interface MyForm {
+    email: string;
+  }
 
-const email = useField('email', {
-  type: 'email',
-  required: true,
-});
-const password = useField('password', {
-  required: true,
-});
+  const { useField, handle, loading } = useForm<MyForm>({
+    defaults: { email: '' },
+  });
 
-const submit = handle(async ({ email, password }) => {
-  alert(`Email: ${email} Password: ${password}`);
-});
+  const email = useField('email', {
+    type: 'email',
+    required: true,
+  });
+
+  const submit = handle(async (values) => {
+    console.log(values.email);
+  });
 </script>
 ```
 
-## API
+## Contributing
 
-### `useForm`
+Report bugs through [issues](https://github.com/devlsh/form/issues) or ask questions in [Discussions](https://github.com/devlsh/form/discussions). Report vulnerabilities privately as described in [SECURITY.md](SECURITY.md).
 
-#### Options
+For local development, pull requests, and other contributions, see the [Contributing Guidelines](CONTRIBUTING.md).
 
-| **Option**     | **Default** | **Type**              | **Description**                                                                          |
-| -------------- | ----------- | --------------------- | ---------------------------------------------------------------------------------------- |
-| defaults       | `{}`        | `Record<string, any>` | Optionally provide defaults for the various fields in this object by key -> value pairs. |
-| validationMode | `submit`    | `'change'\|'submit'`  | NOT IMPLEMENTED YET. Whether to validate input once submitted                            |
+## License
 
-#### Response
+`@devlsh/form` is free and open-source software licensed under the [MIT License](LICENSE).
 
-| **Option**    | **Type**                                                               | **Description**                                                                                   |
-| ------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `useField`    | `Field<unknown>`                                                       | [Documented below.](#usefield)                                                                    |
-| `handle`      | `(run: values => Promise<void>) => async (e?: Event) => Promise<void>` | Registers the asynchronous handler that runs once a form is submitted and successfully validated. |
-| `reset`       | `() => void`                                                           | Reset the Form to tis default state.                                                              |
-| `validate`    | `() => Promise<boolean>`                                               | Manually trigger validation and error handling.                                                   |
-| `clearErrors` | `() => void`                                                           | Clear all errors for all fields.                                                                  |
-| `loading`     | `Ref<boolean>`                                                         | Whether the form is currently executing.                                                          |
-| `destroy`     | `() => void`                                                           | Destroy and clean-up the Form handler. Happens automatically during `onBeforeUnmount`.            |
+---
 
-### `useField`
-
-#### Options
-
-Currently the options object provided to `useField` is inheritted from [async-validator](https://github.com/yiminghe/async-validator) and
-all options are forwarded as a validation field.
-
-#### Response
-
-| **Option**   | **Type**                       | **Description**                                                    |
-| ------------ | ------------------------------ | ------------------------------------------------------------------ |
-| `errors`     | `ValidateError[]`              | An array of all Errors set against this Field.                     |
-| `error`      | `ValidateError\|null`          | Optimistically picks one, if any, of the Errors against the field. |
-| `hasError`   | `ComputedRef<boolean>`         | Whether or not the Field has 1 or more errors.                     |
-| `setError`   | `(text: string) => void`       | Manually set the error on this field.                              |
-| `clearError` | `() => void`                   | Clears all Errors currently set against this Field.                |
-| `value`      | `WritableComputedRef<unknown>` | The value for the field, compatible with `v-model`.                |
-
-## To-do
-
-- Add a test suite
+> [devlsh.com](https://devlsh.com) &nbsp;&middot;&nbsp;
+> GitHub: [@devlsh](https://github.com/devlsh) &nbsp;&middot;&nbsp;
+> X: [@itsdevlsh](https://x.com/itsdevlsh)
