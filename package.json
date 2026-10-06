@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/package.json",
   "name": "@devlsh/form",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Lightweight, type-safe forms for Vue.",
   "keywords": [
     "async-validator",
