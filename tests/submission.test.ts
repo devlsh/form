@@ -159,14 +159,24 @@ describe('Submission', () => {
     await expect.poll(() => screen.emitted('completed')).toEqual([[{ email: 'ada@example.com' }]]);
   });
 
-  test('recovers from transform errors', async () => {
+  test.each([
+    {
+      error: new Error('Transform failed'),
+      message: 'Transform failed',
+    },
+    {
+      error: 'Transform failed',
+      message: 'Validation failed',
+    },
+  ])('recovers from transform errors ($message)', async ({ error, message }) => {
     let fail = true;
 
     const screen = await render(SubmissionForm, {
       props: {
         transform: (value: string) => {
           if (fail) {
-            throw new Error('Transform failed');
+            // oxlint-disable-next-line typescript/only-throw-error -- Exercise normalization of non-Error throws.
+            throw error;
           }
 
           return value;
@@ -182,7 +192,7 @@ describe('Submission', () => {
       })
       .click();
 
-    await expect.element(screen.getByRole('status', { name: 'Submit result' })).toHaveTextContent('Transform failed');
+    await expect.element(screen.getByRole('status', { name: 'Submit result' })).toHaveTextContent(message);
     await expect.element(screen.getByRole('status', { name: 'Loading' })).toHaveTextContent('Ready');
     expect(screen.emitted('submitted')).toBeUndefined();
 

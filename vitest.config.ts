@@ -10,6 +10,9 @@ export default defineConfig({
     mockReset: true,
     restoreMocks: true,
     setupFiles: ['vitest-browser-vue'],
+    coverage: {
+      include: ['src/**/*.ts'],
+    },
     browser: {
       enabled: true,
       headless: true,

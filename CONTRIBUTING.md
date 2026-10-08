@@ -56,6 +56,8 @@ To fix lint and formatting findings, run `pnpm lint:fix`, then `pnpm fmt`. Inspe
 
 Run `pnpm test` for the Vue Vitest suite. For behavior changes, add or update tests at the public consumer seam. Describe what you verified. Static checks alone do not prove runtime behavior.
 
+`pnpm test:coverage` reports coverage for library source in `src/**/*.ts`. It excludes test fixtures from coverage totals.
+
 `pnpm test`, `pnpm test:watch`, and `pnpm test:coverage` first run `test:setup` to install Chromium for the current Playwright version. The first test command after a fresh dependency install or Playwright update supplies the required browser revision automatically.
 
 To install Chromium separately or recover a missing browser, run `pnpm test:setup`.
