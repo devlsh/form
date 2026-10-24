@@ -7,7 +7,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
-    "typecheck": "vue-tsc -p tsconfig.json --noEmit && tsc -p tsconfig.build.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.build.json --noEmit",
     "wrangler": "wrangler"
   },
   "devDependencies": {
@@ -17,7 +17,6 @@
     "typescript": "7.1.0-beta",
     "vite": "8.3.5",
     "vue": "3.5.44",
-    "vue-tsc": "3.3.13",
     "wrangler": "4.152.0"
   }
 }

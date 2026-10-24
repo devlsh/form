@@ -19,7 +19,8 @@
 
 - Keep form orchestration in `src/index.ts`, public types in `src/types.ts`, and internal value normalization in `src/utils.ts`. Preserve the single ESM package entry unless the requested contract changes.
 - The demo and browser fixtures consume library source. They do not prove installed package exports or declarations.
-- The root Vue shim does not check SFC scripts or templates. The demo has its own compiler pair and strict SFC checks; preserve that boundary when changing root TypeScript.
+- Root and demo typechecks use the shared Vue shim. Neither checks SFC scripts, templates, or component props.
+- The library build has no SFC entries. Workspace overrides exclude the declaration bundler's optional Vue compiler peers.
 - `dist` and `demo/dist` are generated output. Edit maintained source and configuration.
 
 ## Validation Requirements
@@ -31,7 +32,7 @@ Select focused checks from [package.json](../package.json) during development. C
 | Form behavior                  | Exercise affected registration, defaults, validation errors, submit/loading state, reset, and lifecycle through the browser consumer fixtures. Static checks do not prove runtime behavior. |
 | Public types                   | Run both root typechecks and inspect affected consumer inference in [tests/types.test.ts](../tests/types.test.ts).                                                                          |
 | Module exports or build output | Build, pack, and install into an isolated consumer. Verify ESM imports, declarations, and an affected form workflow. Source-local checks do not prove the published module layout.          |
-| Demo                           | Follow [demo checks](../demo/AGENTS.md#checks), including SFC typechecking, build, and deployment packaging. Library checks do not replace demo checks.                                     |
+| Demo                           | Follow [demo checks](../demo/AGENTS.md#checks), including TypeScript checks, build, and deployment packaging. Library checks do not replace demo checks.                                    |
 | Toolchain or workflow          | Check the shared setup action's contract and every caller. GitHub Actions execution remains unverified unless an authorized hosted run covers the change.                                   |
 
 The formatter excludes `.github`, the changelog, generated output, and the lockfile. A passing format check is not evidence for those surfaces. Inspect the effective lint and format configuration when changing shared presets.

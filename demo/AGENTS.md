@@ -17,7 +17,7 @@ Refresh these instructions and [README.md](README.md) when these owners change e
 
 Use [Local Development](../CONTRIBUTING.md#local-development) for setup and [Dependency Changes](../CONTRIBUTING.md#dependency-changes) for version approval. From the repository root:
 
-- `pnpm demo typecheck` runs `vue-tsc` for SFC scripts, templates, and browser TypeScript, then `tsc` for Vite configuration. It emits no files and does not use the root Vue shim. Preserve the [demo-local compiler pair](package.json) and strict template checks. For compiler changes, verify valid SFCs pass and invalid scripts, templates, and component props fail through the real command.
+- `pnpm demo typecheck` runs `tsc` for browser TypeScript and Vite configuration without emitting files. It uses the shared [Vue shim](../shim.d.ts); it does not check SFC scripts, templates, or component props. For compiler changes, verify valid TypeScript passes and invalid TypeScript fails through the real command.
 - `pnpm demo build` compiles Vue SFCs and builds static assets in `demo/dist`. A successful build does not prove SFC type safety or browser behavior.
 - After the build, run `pnpm demo wrangler deploy --dry-run` exactly as shown, without extra environment variables. This native check validates deployment packaging without live deployment.
 - `pnpm demo dev` starts Vite for real-interface checks. Check email confirmation, nested project validation, conditional city requirements, and deliverable length and uniqueness. Inspect stable row identity, keyboard recovery after removal, the 2-second callback, disabled controls, and reset as affected. Inspect affected viewport behavior and HMR cleanup. Invalid submissions and new rows do not request automatic focus.
