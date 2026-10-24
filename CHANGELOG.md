@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/devlsh/form/compare/v2.0.0...v2.0.1) (2026-10-24)
+
+
+### Miscellaneous Chores
+
+* prepare release 2.0.1 ([13e3799](https://github.com/devlsh/form/commit/13e37992b071cd9aa3ce68e6e1e80a62efb7e3e1))
+
 ## [2.0.0](https://github.com/devlsh/form/compare/v1.1.0...v2.0.0) (2026-10-06)
 
 
