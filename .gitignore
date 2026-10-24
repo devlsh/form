@@ -10,11 +10,8 @@ pids
 # code coverage results.
 coverage
 
-# node addon binaries (https://nodejs.org/api/addons.html).
-build/Release
-
 # node modules.
-node_modules/
+node_modules
 
 # outputs.
 dist/
@@ -33,19 +30,17 @@ dist/
 .vite
 .vitest
 
-# devenv.
+# local environment caches.
 .devenv/
 .direnv/
-
-# turbo.
-.turbo
 
 # typescript.
 *.tsbuildinfo
 
 # local agent workflow artifacts.
-.worktrees/
-.scratch/
+.worktrees
+.scratch
+/docs/research
 /research
 /docs/plans
 /plans

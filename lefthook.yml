@@ -1,6 +1,3 @@
-# Run `lefthook` through `devenv` so it inherits the correct tooling.
-lefthook: devenv shell lefthook
-
 pre-commit:
   parallel: false
   piped: true

@@ -10,21 +10,15 @@ Search open and closed issues first. Add details to a previous report, or open a
 
 ## Local Development
 
-Install [Nix](https://nix.dev/) and [devenv](https://devenv.sh/), then clone the repository.
+Install [pnpm 12](https://pnpm.io/installation), then clone the repository.
 
 From the repository root, install dependencies with the frozen lockfile and install Git hooks:
 
 ```sh
-devenv tasks run form:install
+pnpm install --frozen-lockfile
 ```
 
-Enter the development shell before you run the pnpm commands below:
-
-```sh
-devenv shell
-```
-
-If you use [direnv](https://direnv.net/), run `direnv allow .` instead of the manual shell command.
+`package.json#devEngines` selects the pnpm and Node versions.
 
 ## Dependency Changes
 
